@@ -48,6 +48,21 @@ jobs:
             sleep 2
           done
 
+      - name: Wait for application database connection
+        run: |
+          docker compose exec -T laravel.test php -r '
+            for ($i = 0; $i < 30; $i++) {
+              try {
+                new PDO("mysql:host=mysql;port=3306;dbname=doctorbookingapi", "sail", "password");
+                exit(0);
+              } catch (Throwable $e) {
+                sleep(2);
+              }
+            }
+
+            exit(1);
+          '
+
       - name: Generate application key
         run: docker compose exec -T laravel.test php artisan key:generate
 
