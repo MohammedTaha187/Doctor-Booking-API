@@ -1,58 +1,165 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  <img src="public/images/doctor-booking-api-banner.svg" alt="Doctor Booking API Banner" width="100%">
+</div>
+
+<h1 align="center">Doctor Booking API</h1>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  A clean and organized Laravel 13 API for doctor appointment booking, payments, reviews, translations, and admin management.
 </p>
 
-## About Laravel
+<p align="center">
+  <strong>Stack:</strong> PHP 8.4 · Laravel 13 · MySQL · Vite · Tailwind CSS 4 · Spatie Permission
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#database-models">Database Models</a> •
+  <a href="#local-setup">Local Setup</a> •
+  <a href="#testing">Testing</a>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Overview
 
-## Learning Laravel
+Doctor Booking API is a Laravel 13 backend built around a versioned API structure. The project focuses on clear separation of concerns, reusable services, repository abstractions, and role-based access control.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Features
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Authentication flow: register, login, logout, forgot password, reset password, and change password
+- Social authentication entry point
+- Doctor and specialty management
+- Schedule and time slot handling
+- Appointment booking and status tracking
+- Payment processing support
+- Review creation and approval workflow
+- Translation, locale, and settings management
+- Spatie roles and permissions integration
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Architecture
 
-## Agentic Development
+The project is organized for maintainability and long-term growth.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+<table>
+  <tr>
+    <td><strong>Layer</strong></td>
+    <td><strong>Purpose</strong></td>
+  </tr>
+  <tr>
+    <td><code>app/Http/Controllers/Api/V1</code></td>
+    <td>Versioned API controllers for auth, admin, doctor, patient, and social flows.</td>
+  </tr>
+  <tr>
+    <td><code>app/Http/Requests/Api/V1</code></td>
+    <td>Dedicated form requests for store/update validation.</td>
+  </tr>
+  <tr>
+    <td><code>app/Models</code></td>
+    <td>Domain models for users, doctors, appointments, payments, reviews, and settings.</td>
+  </tr>
+  <tr>
+    <td><code>app/Repositories</code></td>
+    <td>Repository implementations for persistence logic.</td>
+  </tr>
+  <tr>
+    <td><code>app/Repositories/Interfaces</code></td>
+    <td>Repository contracts and payment gateway abstractions.</td>
+  </tr>
+  <tr>
+    <td><code>app/Services</code></td>
+    <td>Business logic for auth, appointments, payments, and translations.</td>
+  </tr>
+  <tr>
+    <td><code>app/Events</code> / <code>app/Listeners</code></td>
+    <td>Event-driven notifications and side effects.</td>
+  </tr>
+  <tr>
+    <td><code>app/Jobs</code></td>
+    <td>Queued background tasks such as reminders and payment webhooks.</td>
+  </tr>
+  <tr>
+    <td><code>app/Policies</code></td>
+    <td>Authorization policies for protected actions.</td>
+  </tr>
+</table>
 
-```bash
-composer require laravel/boost --dev
+## Database Models
 
-php artisan boost:install
+The main database structure includes:
+
+| Table | Purpose |
+| --- | --- |
+| `users` | Patients, doctors, and admin users |
+| `roles`, `permissions`, `model_has_roles`, `role_has_permissions` | Spatie permissions tables |
+| `specialties` | Doctor specialties |
+| `doctors` | Doctor profiles and professional data |
+| `time_slots` | Availability windows |
+| `appointments` | Booking records |
+| `payments` | Payment transactions |
+| `reviews` | Doctor reviews and ratings |
+| `translations` | Polymorphic translation records |
+| `locales` | Supported locales |
+| `settings` | Application settings |
+
+## Directory Structure
+
+```text
+app/
+├── Events
+├── Http
+│   ├── Controllers/Api/V1
+│   ├── Middleware
+│   ├── Requests/Api/V1
+│   └── Resources/Api/V1
+├── Jobs
+├── Listeners
+├── Models
+├── Policies
+├── Providers
+├── Repositories
+│   └── Interfaces
+└── Services
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Local Setup
 
-## Contributing
+```bash
+composer install
+docker compose up -d --build
+docker compose exec -T laravel.test php artisan key:generate
+docker compose exec -T laravel.test php artisan migrate --force
+docker compose exec -T laravel.test npm install
+docker compose exec -T laravel.test npm run build
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+For local development while the stack is running:
 
-## Code of Conduct
+```bash
+docker compose exec -T laravel.test npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Then open the application in your browser at `http://localhost`.
 
-## Security Vulnerabilities
+## Testing
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+docker compose exec -T laravel.test php artisan test
+```
 
-## License
+## CI Workflow
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The repository includes a GitHub Actions workflow in `.github/workflows/test.yml` that:
+
+- runs on pushes and pull requests targeting `dev` and `main`
+- installs PHP 8.4 dependencies
+- runs Laravel Pint
+- refreshes the database
+- executes the test suite
+
+## Notes
+
+- The root route currently returns the default Laravel welcome page.
+- The banner image used in this README is stored in `public/images/doctor-booking-api-banner.svg`.
+- The project is intentionally structured to stay clear, modular, and easy to extend.
