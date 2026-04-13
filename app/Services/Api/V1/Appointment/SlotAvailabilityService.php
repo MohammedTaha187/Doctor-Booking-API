@@ -1,0 +1,5 @@
+<?php
+
+namespace App\Services\Api\V1\Appointment;
+
+class SlotAvailabilityService {}
