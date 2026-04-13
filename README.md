@@ -127,24 +127,25 @@ app/
 
 ```bash
 composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --force
-npm install
-npm run build
-php artisan serve
+docker compose up -d --build
+docker compose exec -T laravel.test php artisan key:generate
+docker compose exec -T laravel.test php artisan migrate --force
+docker compose exec -T laravel.test npm install
+docker compose exec -T laravel.test npm run build
 ```
 
-For frontend development:
+For local development while the stack is running:
 
 ```bash
-npm run dev
+docker compose exec -T laravel.test npm run dev
 ```
+
+Then open the application in your browser at `http://localhost`.
 
 ## Testing
 
 ```bash
-php artisan test
+docker compose exec -T laravel.test php artisan test
 ```
 
 ## CI Workflow
@@ -162,4 +163,3 @@ The repository includes a GitHub Actions workflow in `.github/workflows/test.yml
 - The root route currently returns the default Laravel welcome page.
 - The banner image used in this README is stored in `public/images/doctor-booking-api-banner.svg`.
 - The project is intentionally structured to stay clear, modular, and easy to extend.
-
