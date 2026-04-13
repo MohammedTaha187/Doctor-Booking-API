@@ -51,7 +51,7 @@
     <rect x="470" y="420" width="220" height="120" rx="24" fill="#0F172A" stroke="white" stroke-opacity="0.08"/>
     <text x="500" y="462" fill="white" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Doctors</text>
     <text x="500" y="492" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Schedules</text>
-    <text x="500" y="516" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Reviews & availability</text>
+    <text x="500" y="516" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Reviews &amp; availability</text>
 
     <rect x="230" y="568" width="220" height="120" rx="24" fill="#0F172A" stroke="white" stroke-opacity="0.08"/>
     <text x="260" y="610" fill="white" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Payments</text>
@@ -60,8 +60,8 @@
 
     <rect x="470" y="568" width="220" height="120" rx="24" fill="#0F172A" stroke="white" stroke-opacity="0.08"/>
     <text x="500" y="610" fill="white" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Admin</text>
-    <text x="500" y="640" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Settings & specialties</text>
-    <text x="500" y="664" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Roles & permissions</text>
+    <text x="500" y="640" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Settings &amp; specialties</text>
+    <text x="500" y="664" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="15">Roles &amp; permissions</text>
   </g>
 
   <g>

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/MohammedTaha187/Doctor-Booking-API/dev/public/images/doctor-booking-api-banner.svg" alt="Doctor Booking API Banner" width="100%">
+  <img src="public/images/doctor-booking-api-banner.svg" alt="Doctor Booking API Banner" width="100%">
 </div>
 
 <h1 align="center">Doctor Booking API</h1>
