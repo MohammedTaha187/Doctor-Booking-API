@@ -11,7 +11,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   backend-tests:
@@ -78,3 +78,22 @@ jobs:
       - name: Stop Docker services
         if: always()
         run: docker compose down -v
+
+  merge-dev-into-main:
+    needs: backend-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && needs.backend-tests.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge dev into main
+        run: |
+          git config --global user.name "MohammedTaha187"
+          git config --global user.email "MohammedTaha187@users.noreply.github.com"
+          git fetch origin main dev
+          git checkout main
+          git merge origin/dev --no-ff -m "Auto-merge dev into main after successful CI"
+          git push origin main
