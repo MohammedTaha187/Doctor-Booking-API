@@ -1,16 +1,21 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Admin\DoctorController;
+use App\Http\Controllers\Api\V1\Admin\AppointmentController as AdminAppointmentController;
+use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\DoctorController as AdminDoctorController;
+use App\Http\Controllers\Api\V1\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\SpecialtyController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
-use App\Http\Controllers\Api\V1\Doctor\DashboardController;
-use App\Http\Controllers\Api\V1\Doctor\ProfileController;
+use App\Http\Controllers\Api\V1\Doctor\AppointmentController as DoctorAppointmentController;
+use App\Http\Controllers\Api\V1\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Api\V1\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Api\V1\Doctor\ScheduleController;
-use App\Http\Controllers\Api\V1\Patient\AppointmentController;
+use App\Http\Controllers\Api\V1\Patient\AppointmentController as PatientAppointmentController;
+use App\Http\Controllers\Api\V1\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\Api\V1\Patient\PaymentController;
-use App\Http\Controllers\Api\V1\Patient\ReviewController;
+use App\Http\Controllers\Api\V1\Patient\ReviewController as PatientReviewController;
 use App\Http\Controllers\Api\V1\Webhook\PaymentWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,12 +50,12 @@ Route::prefix('v1')->group(function () {
 
         // --- Doctor Routes ---
         Route::prefix('doctor')->middleware('role:doctor')->group(function () {
-            Route::get('/profile', [ProfileController::class, 'index']);
-            Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
+            Route::get('/profile', [DoctorProfileController::class, 'index']);
+            Route::match(['put', 'patch'], '/profile', [DoctorProfileController::class, 'update']);
 
-            Route::get('/appointments', [AppointmentController::class, 'index']);
-            Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
-            Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
+            Route::get('/appointments', [DoctorAppointmentController::class, 'index']);
+            Route::get('/appointments/{id}', [DoctorAppointmentController::class, 'show']);
+            Route::patch('/appointments/{id}/status', [DoctorAppointmentController::class, 'updateStatus']);
 
             // Schedule Management
             Route::get('/schedule', [ScheduleController::class, 'index']);
@@ -58,21 +63,21 @@ Route::prefix('v1')->group(function () {
             Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy']);
             Route::delete('/schedule/clear/{day}', [ScheduleController::class, 'clearDay']);
 
-            Route::get('/dashboard', [DashboardController::class, 'index']);
+            Route::get('/dashboard', [DoctorDashboardController::class, 'index']);
         });
 
         // --- Patient Routes ---
         Route::prefix('patient')->middleware('role:patient')->group(function () {
-            Route::get('/doctors', [DoctorController::class, 'index']);
-            Route::get('/doctors/{id}', [DoctorController::class, 'show']);
-            Route::get('/doctors/{id}/availability', [DoctorController::class, 'availableSlots']);
+            Route::get('/doctors', [PatientDoctorController::class, 'index']);
+            Route::get('/doctors/{id}', [PatientDoctorController::class, 'show']);
+            Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availableSlots']);
 
-            Route::get('/appointments', [AppointmentController::class, 'index']);
-            Route::post('/appointments', [AppointmentController::class, 'store']);
-            Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
-            Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel']);
+            Route::get('/appointments', [PatientAppointmentController::class, 'index']);
+            Route::post('/appointments', [PatientAppointmentController::class, 'store']);
+            Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
+            Route::post('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
 
-            Route::post('/reviews', [ReviewController::class, 'store']);
+            Route::post('/reviews', [PatientReviewController::class, 'store']);
 
             // Payments
             Route::post('/payments/initiate', [PaymentController::class, 'initiate']);
@@ -81,15 +86,15 @@ Route::prefix('v1')->group(function () {
         // --- Admin Routes ---
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::apiResource('users', UserController::class);
-            Route::apiResource('doctors', DoctorController::class);
+            Route::apiResource('doctors', AdminDoctorController::class);
             Route::apiResource('specialties', SpecialtyController::class);
-            Route::apiResource('appointments', AppointmentController::class);
+            Route::apiResource('appointments', AdminAppointmentController::class);
 
-            Route::get('/reviews', [ReviewController::class, 'index']);
-            Route::post('/reviews/{id}/approve', [ReviewController::class, 'approve']);
-            Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+            Route::get('/reviews', [AdminReviewController::class, 'index']);
+            Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve']);
+            Route::delete('/reviews/{id}', [AdminReviewController::class, 'destroy']);
 
-            Route::get('/dashboard', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'index']);
+            Route::get('/dashboard', [AdminDashboardController::class, 'index']);
         });
     });
 });
