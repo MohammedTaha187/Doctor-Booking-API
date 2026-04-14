@@ -12,4 +12,14 @@ class Specialty extends Model
 {
     /** @use HasFactory<SpecialtyFactory> */
     use HasFactory;
+
+    public function doctors()
+    {
+        return $this->hasMany(Doctor::class);
+    }
+
+    public function translations()
+    {
+        return $this->morphMany(Translation::class, 'translatable');
+    }
 }

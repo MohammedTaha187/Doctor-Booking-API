@@ -2,64 +2,19 @@
 
 namespace App\Policies\Api\V1;
 
+use App\Models\Appointment;
 use App\Models\Review;
 use App\Models\User;
 
 class ReviewPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Only the patient who completed the appointment can submit a review — and only once.
      */
-    public function viewAny(User $user): bool
+    public function create(User $user, Appointment $appointment): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Review $review): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Review $review): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Review $review): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Review $review): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Review $review): bool
-    {
-        return false;
+        return $user->id === $appointment->patient_id
+            && $appointment->status === 'completed'
+            && ! Review::where('appointment_id', $appointment->id)->exists();
     }
 }

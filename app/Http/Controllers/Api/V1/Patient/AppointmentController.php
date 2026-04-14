@@ -3,64 +3,83 @@
 namespace App\Http\Controllers\Api\V1\Patient;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\Appointment\StoreAppointmentRequest;
-use App\Models\Appointment;
+use App\Http\Requests\Api\V1\Appointment\StoreBookingRequest;
+use App\Http\Resources\Api\V1\Appointment\AppointmentResource;
+use App\Models\TimeSlot;
+use App\Services\Api\V1\Appointment\AppointmentService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
+    public function __construct(protected AppointmentService $appointmentService) {}
+
     /**
-     * Display a listing of the resource.
+     * List current patient's appointments.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $appointments = $this->appointmentService->getForPatient($request->user()->id);
+
+        return response()->json(AppointmentResource::collection($appointments));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show a specific appointment details.
      */
-    public function create()
+    public function show(string $id, Request $request): JsonResponse
     {
-        //
+        $appointment = $this->appointmentService->appointmentRepository->find($id);
+
+        if (! $appointment) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
+
+        $this->authorize('view', $appointment);
+
+        return response()->json(new AppointmentResource($appointment));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Book a new appointment.
      */
-    public function store(StoreAppointmentRequest $request)
+    public function store(StoreBookingRequest $request): JsonResponse
     {
-        //
+        $slot = TimeSlot::find($request->time_slot_id);
+
+        try {
+            $data = $request->validated();
+            $data['patient_id'] = $request->user()->id;
+            $data['scheduled_time'] = $slot->start_time; // Automatically get time from slot
+            $data['status'] = 'pending';
+
+            $appointment = $this->appointmentService->bookAppointment($data);
+
+            return response()->json([
+                'message' => 'Appointment booked successfully. Waiting for confirmation.',
+                'data' => new AppointmentResource($appointment),
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     /**
-     * Display the specified resource.
+     * Cancel an appointment.
      */
-    public function show(Appointment $appointment)
+    public function cancel(string $id, Request $request): JsonResponse
     {
-        //
-    }
+        $appointment = $this->appointmentService->appointmentRepository->find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Appointment $appointment)
-    {
-        //
-    }
+        if (! $appointment) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Appointment $appointment)
-    {
-        //
-    }
+        $this->authorize('cancel', $appointment);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Appointment $appointment)
-    {
-        //
+        $this->appointmentService->updateStatus($id, 'cancelled');
+
+        return response()->json(['message' => 'Appointment cancelled successfully.']);
     }
 }

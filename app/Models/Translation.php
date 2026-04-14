@@ -12,4 +12,9 @@ class Translation extends Model
 {
     /** @use HasFactory<TranslationFactory> */
     use HasFactory;
+
+    public function translatable()
+    {
+        return $this->morphTo();
+    }
 }

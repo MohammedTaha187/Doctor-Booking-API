@@ -2,28 +2,23 @@
 
 namespace App\Http\Requests\Api\V1\Translation;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTranslationRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'translatable_type' => 'required|string|max:255',
+            'translatable_id' => 'required|uuid',
+            'locale' => 'required|string|size:5',
+            'field' => 'required|string|max:255',
+            'value' => 'required|string',
         ];
     }
 }

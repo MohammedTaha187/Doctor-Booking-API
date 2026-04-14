@@ -12,4 +12,14 @@ class Payment extends Model
 {
     /** @use HasFactory<PaymentFactory> */
     use HasFactory;
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class);
+    }
 }

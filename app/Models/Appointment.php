@@ -12,4 +12,29 @@ class Appointment extends Model
 {
     /** @use HasFactory<AppointmentFactory> */
     use HasFactory;
+
+    public function timeSlot()
+    {
+        return $this->belongsTo(TimeSlot::class);
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(User::class, 'patient_id');
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
 }

@@ -5,63 +5,70 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Specialty\StoreSpecialtyRequest;
 use App\Http\Requests\Api\V1\Specialty\UpdateSpecialtyRequest;
-use App\Models\Specialty;
+use App\Http\Resources\Api\V1\Specialty\SpecialtyResource;
+use App\Repositories\Interfaces\SpecialtyRepositoryInterface;
+use App\Services\Api\V1\Translation\TranslationService;
+use Illuminate\Http\JsonResponse;
 
 class SpecialtyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(
+        protected SpecialtyRepositoryInterface $specialtyRepository,
+        protected TranslationService $translationService
+    ) {}
+
+    public function index(): JsonResponse
     {
-        //
+        return response()->json(SpecialtyResource::collection($this->specialtyRepository->all()));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSpecialtyRequest $request): JsonResponse
     {
-        //
+        $data = $request->validated();
+        $translations = $data['translations'] ?? [];
+        unset($data['translations']);
+
+        $specialty = $this->specialtyRepository->create($data);
+
+        if (! empty($translations)) {
+            $this->translationService->sync($specialty, $translations);
+        }
+
+        return response()->json(new SpecialtyResource($specialty), 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreSpecialtyRequest $request)
+    public function show(string $id): JsonResponse
     {
-        //
+        $specialty = $this->specialtyRepository->find($id);
+        if (! $specialty) {
+            return response()->json(['message' => 'Specialty not found'], 404);
+        }
+
+        return response()->json(new SpecialtyResource($specialty));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Specialty $specialty)
+    public function update(UpdateSpecialtyRequest $request, string $id): JsonResponse
     {
-        //
+        $data = $request->validated();
+        $translations = $data['translations'] ?? [];
+        unset($data['translations']);
+
+        $specialty = $this->specialtyRepository->update($id, $data);
+        if (! $specialty) {
+            return response()->json(['message' => 'Specialty not found'], 404);
+        }
+
+        if (! empty($translations)) {
+            $this->translationService->sync($specialty, $translations);
+        }
+
+        return response()->json(new SpecialtyResource($specialty));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Specialty $specialty)
+    public function destroy(string $id): JsonResponse
     {
-        //
-    }
+        $this->specialtyRepository->delete($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Specialty $specialty)
-    {
-        //
+        return response()->json(null, 204);
     }
 }

@@ -4,62 +4,57 @@ namespace App\Policies\Api\V1;
 
 use App\Models\Appointment;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class AppointmentPolicy
 {
     /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
+     * Patient can see their own appointments; Doctor sees theirs; Admin sees all.
      */
     public function view(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->id === $appointment->patient_id
+            || $user->doctor?->id === $appointment->doctor_id
+            || $user->hasRole('admin');
     }
 
     /**
-     * Determine whether the user can create models.
+     * Only patient can cancel, only if appointment is pending/confirmed and >24h away.
      */
-    public function create(User $user): bool
+    public function cancel(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->id === $appointment->patient_id
+            && in_array($appointment->status, ['pending', 'confirmed'])
+            && now()->lt(
+                Carbon::parse("{$appointment->scheduled_date} {$appointment->scheduled_time}")->subHours(24)
+            );
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Only the patient who owns the appointment can pay for it.
      */
-    public function update(User $user, Appointment $appointment): bool
+    public function pay(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->id === $appointment->patient_id
+            && $appointment->payment_status === 'unpaid'
+            && $appointment->status !== 'cancelled';
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Only the doctor assigned to this appointment can confirm it.
      */
-    public function delete(User $user, Appointment $appointment): bool
+    public function confirm(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->doctor?->id === $appointment->doctor_id
+            && $appointment->status === 'pending';
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Only the assigned doctor can mark appointment as complete.
      */
-    public function restore(User $user, Appointment $appointment): bool
+    public function complete(User $user, Appointment $appointment): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Appointment $appointment): bool
-    {
-        return false;
+        return $user->doctor?->id === $appointment->doctor_id
+            && $appointment->status === 'confirmed';
     }
 }

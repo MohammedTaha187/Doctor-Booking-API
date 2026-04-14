@@ -2,4 +2,14 @@
 
 namespace App\Events;
 
-class AppointmentCancelled {}
+use App\Models\Appointment;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class AppointmentCancelled
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public function __construct(public Appointment $appointment) {}
+}
