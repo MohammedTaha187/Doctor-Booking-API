@@ -25,18 +25,25 @@ class AuthController extends Controller
         return response()->json([
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
+            'token_type' => $result['token_type'],
+            'expires_in' => $result['expires_in'],
         ], 201);
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        // Fixed: Pass validated array to service
-        $result = $this->authService->login($request->validated());
+        try {
+            $result = $this->authService->login($request->validated());
 
-        return response()->json([
-            'user' => new UserResource($result['user']),
-            'token' => $result['token'],
-        ]);
+            return response()->json([
+                'user' => new UserResource($result['user']),
+                'token' => $result['token'],
+                'token_type' => $result['token_type'],
+                'expires_in' => $result['expires_in'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 401);
+        }
     }
 
     public function logout(Request $request): JsonResponse
@@ -60,13 +67,14 @@ class AuthController extends Controller
         return response()->json([
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
+            'token_type' => $result['token_type'],
+            'expires_in' => $result['expires_in'],
         ]);
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         try {
-            // Note: Service currently just updates password if simplified flow is used
             $this->authService->forgotPassword($request->validated());
 
             return response()->json(['message' => 'Password reset instructions sent (simplified).']);

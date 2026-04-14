@@ -55,6 +55,18 @@ class ScheduleController extends Controller
         $endTime = Carbon::createFromFormat('H:i', $request->end_time);
         $duration = $request->duration_minutes;
 
+        $hasOverlap = TimeSlot::where('doctor_id', $doctor->id)
+            ->where('day_of_week', $request->day_of_week)
+            ->where('start_time', '<', $endTime->format('H:i:s'))
+            ->where('end_time', '>', $startTime->format('H:i:s'))
+            ->exists();
+
+        if ($hasOverlap) {
+            return response()->json([
+                'message' => 'Selected time range overlaps with an existing slot.',
+            ], 422);
+        }
+
         $createdSlots = [];
         $current = $startTime->copy();
 
@@ -87,6 +99,10 @@ class ScheduleController extends Controller
         $doctor = $this->doctorService->getProfileByUserId($request->user()->id);
         $slot = $this->timeSlotRepository->find($id);
 
+        if (! $doctor) {
+            return response()->json(['message' => 'Doctor profile not found'], 404);
+        }
+
         if (! $slot || $slot->doctor_id !== $doctor->id) {
             return response()->json(['message' => 'Slot not found or unauthorized'], 404);
         }
@@ -102,6 +118,10 @@ class ScheduleController extends Controller
     public function clearDay(string $day, Request $request): JsonResponse
     {
         $doctor = $this->doctorService->getProfileByUserId($request->user()->id);
+
+        if (! $doctor) {
+            return response()->json(['message' => 'Doctor profile not found'], 404);
+        }
 
         TimeSlot::where('doctor_id', $doctor->id)
             ->where('day_of_week', $day)

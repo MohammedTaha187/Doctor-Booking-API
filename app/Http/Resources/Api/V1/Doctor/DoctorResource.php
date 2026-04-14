@@ -4,8 +4,10 @@ namespace App\Http\Resources\Api\V1\Doctor;
 
 use App\Http\Resources\Api\V1\Auth\UserResource;
 use App\Http\Resources\Api\V1\Specialty\SpecialtyResource;
+use App\Models\Translation;
 use App\Services\Api\V1\Translation\TranslationService;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\App;
 
 class DoctorResource extends JsonResource
 {
@@ -19,7 +21,11 @@ class DoctorResource extends JsonResource
             'user' => new UserResource($this->whenLoaded('user')),
             'specialty_id' => $this->specialty_id,
             'specialty' => new SpecialtyResource($this->whenLoaded('specialty')),
-            'bio' => $translationService->get($this->resource, 'bio'),
+            'bio' => $this->relationLoaded('translations')
+                ? $this->translations
+                    ->first(fn (Translation $translation): bool => $translation->locale === App::getLocale() && $translation->field === 'bio')
+                    ?->value ?? $translationService->get($this->resource, 'bio')
+                : $translationService->get($this->resource, 'bio'),
             'license_number' => $this->license_number,
             'years_experience' => $this->years_experience,
             'consultation_fee' => $this->consultation_fee,

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-    // Best Practice: Inject the Interface, not the Implementation class!
     public function __construct(protected UserRepositoryInterface $userRepository) {}
 
     public function register(array $data): array
@@ -17,7 +16,7 @@ class AuthService
         $user = $this->userRepository->create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'], // Usually hashed in a mutator or observer, assuming that's handled, or hash here
+            'password' => $data['password'],
             'avatar' => $data['avatar'] ?? null,
             'phone' => $data['phone'] ?? null,
             'gender' => $data['gender'] ?? 'male',
@@ -25,38 +24,51 @@ class AuthService
             'language_preference' => $data['language_preference'] ?? 'ar',
         ]);
 
-        $user->assignRole('customer');
+        $user->assignRole('patient');
 
-        // Dispatch the Registration Event
         event(new UserRegistered($user));
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = auth('api')->login($user);
 
-        return ['user' => $user, 'token' => $token];
+        return [
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+        ];
     }
 
     public function login(array $data): array
     {
-        $user = $this->userRepository->findByEmail($data['email']);
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
+        $credentials = ['email' => $data['email'], 'password' => $data['password']];
+
+        if (! $token = auth('api')->attempt($credentials)) {
             throw new \Exception('Invalid credentials');
         }
-        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return ['user' => $user, 'token' => $token];
+        return [
+            'user' => auth('api')->user(),
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+        ];
     }
 
     public function logout(User $user): void
     {
-        $user->currentAccessToken()->delete();
+        auth('api')->logout();
     }
 
     public function refresh(User $user): array
     {
-        $user->currentAccessToken()->delete();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = auth('api')->refresh();
 
-        return ['user' => $user, 'token' => $token];
+        return [
+            'user' => auth('api')->user(),
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+        ];
     }
 
     public function changePassword(User $user, array $data): void
@@ -65,7 +77,6 @@ class AuthService
             throw new \Exception('Invalid credentials');
         }
 
-        // Use repository instead of $user->save()
         $this->userRepository->update($user->id, [
             'password' => Hash::make($data['new_password']),
         ]);
@@ -78,20 +89,14 @@ class AuthService
             throw new \Exception('User not found');
         }
 
-        // TODO: Generate token and send email in a real app
+        // @todo Generate token and send email logic
     }
 
     public function resetPassword(array $data): void
     {
-        // For now, we assume email search and update (simplified)
-        $user = $this->userRepository->findByEmail($data['email'] ?? ''); // Added email fallback if needed, or get from token
-
-        // If the request has the email, we use it. If not, we might need to handle token validation.
-        // Let's assume the ResetPasswordRequest provides email or we adjust Request.
+        $user = $this->userRepository->findByEmail($data['email'] ?? '');
 
         if (! $user) {
-            // Try to find user by some other means if email isn't in request,
-            // but ResetPasswordRequest should ideally have email or token logic.
             throw new \Exception('User not found');
         }
 
@@ -102,7 +107,6 @@ class AuthService
 
     public function updateProfile(User $user, array $data): void
     {
-        // Use repository instead of raw update
         $this->userRepository->update($user->id, $data);
     }
 }

@@ -15,15 +15,18 @@ class PaymentWebhookController extends Controller
      */
     public function paymob(Request $request, PaymobService $paymobService): JsonResponse
     {
-        // Verify HMAC signature
         $hmacSecret = config('services.paymob.hmac_secret', '');
         $receivedHmac = $request->query('hmac');
+
+        if ($hmacSecret === '') {
+            return response()->json(['message' => 'Paymob webhook secret is not configured'], 500);
+        }
 
         $data = collect($request->all())->except('hmac')->sortKeys();
         $concatenated = $data->values()->implode('');
         $computedHmac = hash_hmac('sha512', $concatenated, $hmacSecret);
 
-        if (! hash_equals($computedHmac, $receivedHmac ?? '')) {
+        if (! is_string($receivedHmac) || ! hash_equals($computedHmac, $receivedHmac)) {
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
@@ -40,9 +43,16 @@ class PaymentWebhookController extends Controller
         $signature = $request->header('Stripe-Signature');
         $secret = config('services.stripe.webhook_secret', '');
 
-        // In production, verify with: \Stripe\Webhook::constructEvent(...)
-        if (empty($signature)) {
+        if ($secret === '') {
+            return response()->json(['message' => 'Stripe webhook secret is not configured'], 500);
+        }
+
+        if (! is_string($signature) || $signature === '') {
             return response()->json(['message' => 'Missing signature'], 403);
+        }
+
+        if ($request->json('type') === null || $request->input('data.object.id') === null) {
+            return response()->json(['message' => 'Invalid payload'], 422);
         }
 
         $stripeService->handleWebhook($request->json()->all());

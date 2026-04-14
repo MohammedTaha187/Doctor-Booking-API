@@ -12,16 +12,14 @@ class StripeService implements PaymentGatewayInterface
 {
     public function initiate(User $user, Appointment $appointment, float $amount): array
     {
-        // In production, use the Stripe SDK:
-        // \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-        // $session = \Stripe\Checkout\Session::create([...]);
 
         $orderId = 'stripe_'.$appointment->id.'_'.time();
 
-        Payment::create([
-            'user_id' => $user->id,
+        Payment::updateOrCreate([
             'appointment_id' => $appointment->id,
             'gateway' => 'stripe',
+        ], [
+            'user_id' => $user->id,
             'gateway_order_id' => $orderId,
             'amount' => $amount,
             'currency' => 'USD',
@@ -36,13 +34,13 @@ class StripeService implements PaymentGatewayInterface
 
     public function verify(string $transactionId): bool
     {
-        // In production: retrieve and check the Stripe PaymentIntent status
+        // @todo Implement Stripe PaymentIntent verification logic if needed
         return true;
     }
 
     public function refund(string $transactionId): bool
     {
-        // In production: use \Stripe\Refund::create(['payment_intent' => $transactionId])
+        // @todo Implement Stripe Refund logic via SDK
         return true;
     }
 
@@ -51,11 +49,19 @@ class StripeService implements PaymentGatewayInterface
         $event = $payload['type'] ?? null;
 
         DB::transaction(function () use ($payload, $event) {
-            if ($event === 'payment_intent.succeeded') {
-                $transactionId = $payload['data']['object']['id'] ?? null;
-                Payment::where('gateway_transaction_id', $transactionId)
-                    ->update(['status' => 'completed']);
+            if ($event !== 'payment_intent.succeeded') {
+                return;
             }
+
+            $transactionId = $payload['data']['object']['id'] ?? null;
+
+            if (! is_string($transactionId) || $transactionId === '') {
+                return;
+            }
+
+            Payment::where('gateway_transaction_id', $transactionId)
+                ->whereIn('status', ['pending', 'failed'])
+                ->update(['status' => 'completed']);
         });
     }
 }

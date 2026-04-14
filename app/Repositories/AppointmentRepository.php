@@ -14,7 +14,15 @@ class AppointmentRepository implements AppointmentRepositoryInterface
 
     public function update(string $id, array $data)
     {
-        $record = Appointment::find($id);
+        $record = Appointment::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'timeSlot',
+            'payment',
+        ])->find($id);
         if ($record) {
             $record->update($data);
 
@@ -36,21 +44,57 @@ class AppointmentRepository implements AppointmentRepositoryInterface
 
     public function find(string $id)
     {
-        return Appointment::find($id);
+        return Appointment::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'timeSlot',
+            'payment',
+        ])->find($id);
     }
 
     public function all()
     {
-        return Appointment::all();
+        return Appointment::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'timeSlot',
+            'payment',
+        ])->get();
     }
 
     public function getByDoctorId(string $doctorId)
     {
-        return Appointment::where('doctor_id', $doctorId)->get();
+        return Appointment::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'timeSlot',
+            'payment',
+        ])
+            ->where('doctor_id', $doctorId)
+            ->get();
     }
 
     public function getByPatientId(string $patientId)
     {
-        return Appointment::where('patient_id', $patientId)->get();
+        return Appointment::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'timeSlot',
+            'payment',
+        ])
+            ->where('patient_id', $patientId)
+            ->get();
     }
 }

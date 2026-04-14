@@ -19,11 +19,14 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
-        <env name="BCRYPT_ROUNDS" value="4"/>
-        <env name="BROADCAST_CONNECTION" value="null"/>
-        <env name="CACHE_STORE" value="array"/>
+        <env name="APP_KEY" value="base64:R0FxumMhjCRoABYBLI7JTd9sblfcI0UPosREyJYIh1o="/>
+        <env name="JWT_SECRET" value="QVsMn7TyoahRwMQjLMuyp1pz0cvBiTiS94vrk6wJIBbZdUMmJ2nj8zoRqQBQkqjU"/>
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_HOST" value="mysql"/>
+        <env name="DB_PORT" value="3306"/>
         <env name="DB_DATABASE" value="testing"/>
+        <env name="DB_USERNAME" value="sail"/>
+        <env name="DB_PASSWORD" value="password"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

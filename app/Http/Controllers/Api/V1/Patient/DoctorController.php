@@ -38,7 +38,7 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Doctor not found'], 404);
         }
 
-        return response()->json(new DoctorResource($doctor->load(['user', 'specialty'])));
+        return response()->json(new DoctorResource($doctor));
     }
 
     /**

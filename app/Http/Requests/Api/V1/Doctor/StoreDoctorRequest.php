@@ -28,7 +28,7 @@ class StoreDoctorRequest extends FormRequest
             'license_number' => 'required|string|max:255',
             'years_experience' => 'required|integer',
             'consultation_fee' => 'required|numeric',
-            'consultation_type' => 'required|in:online,offline',
+            'consultation_type' => 'required|in:online,in_person,both',
             'rating' => 'required|numeric',
             'reviews_count' => 'required|integer',
             'is_verified' => 'required|boolean',

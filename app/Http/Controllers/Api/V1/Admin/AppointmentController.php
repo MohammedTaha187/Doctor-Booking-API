@@ -15,7 +15,7 @@ class AppointmentController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json(AppointmentResource::collection($this->appointmentRepository->all()));
+        return response()->json(AppointmentResource::collection($this->appointmentRepository->all())->response()->getData(true));
     }
 
     public function show(string $id): JsonResponse
@@ -47,7 +47,9 @@ class AppointmentController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $this->appointmentRepository->delete($id);
+        if (! $this->appointmentRepository->delete($id)) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
 
         return response()->json(null, 204);
     }

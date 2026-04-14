@@ -6,8 +6,10 @@ use App\Contracts\Payments\PaymentGatewayInterface;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\User;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 
 class PaymobService implements PaymentGatewayInterface
 {
@@ -24,32 +26,56 @@ class PaymobService implements PaymentGatewayInterface
         $this->iframeId = config('services.paymob.iframe_id', '');
     }
 
+    private function http(): PendingRequest
+    {
+        return Http::timeout(15)
+            ->connectTimeout(5)
+            ->retry(3, 250);
+    }
+
+    private function assertConfigured(): void
+    {
+        if ($this->apiKey === '' || $this->integrationId === '' || $this->iframeId === '') {
+            throw new RuntimeException('Paymob configuration is incomplete.');
+        }
+    }
+
     public function initiate(User $user, Appointment $appointment, float $amount): array
     {
-        // Step 1: Get Paymob auth token
-        $authResponse = Http::post('https://accept.paymob.com/api/auth/tokens', [
+        $this->assertConfigured();
+
+        $firstName = explode(' ', trim($user->name))[0] ?: $user->name;
+        $lastName = explode(' ', trim($user->name))[1] ?? $firstName;
+
+        $authResponse = $this->http()->post('https://accept.paymob.com/api/auth/tokens', [
             'api_key' => $this->apiKey,
-        ]);
+        ])->throw();
         $token = $authResponse->json('token');
 
-        // Step 2: Create order
-        $orderResponse = Http::withToken($token)->post('https://accept.paymob.com/api/ecommerce/orders', [
+        if (! is_string($token) || $token === '') {
+            throw new RuntimeException('Failed to obtain Paymob auth token.');
+        }
+
+        $orderResponse = $this->http()->withToken($token)->post('https://accept.paymob.com/api/ecommerce/orders', [
             'amount_cents' => (int) ($amount * 100),
             'currency' => 'EGP',
             'merchant_order_id' => $appointment->id,
             'items' => [],
-        ]);
+        ])->throw();
         $orderId = $orderResponse->json('id');
 
-        // Step 3: Get payment key
-        $paymentKeyResponse = Http::withToken($token)->post('https://accept.paymob.com/api/acceptance/payment_keys', [
+        if (! is_string($orderId) && ! is_int($orderId)) {
+            throw new RuntimeException('Failed to create Paymob order.');
+        }
+
+        $paymentKeyResponse = $this->http()->withToken($token)->post('https://accept.paymob.com/api/acceptance/payment_keys', [
             'amount_cents' => (int) ($amount * 100),
             'expiration' => 3600,
             'order_id' => $orderId,
             'billing_data' => [
                 'email' => $user->email,
-                'first_name' => explode(' ', $user->name)[0],
-                'last_name' => explode(' ', $user->name)[1] ?? 'N/A',
+                'first_name' => $firstName,
+                'last_name' => $lastName,
                 'phone_number' => $user->phone ?? 'N/A',
                 'apartment' => 'NA', 'floor' => 'NA', 'street' => 'NA',
                 'building' => 'NA', 'shipping_method' => 'NA', 'postal_code' => 'NA',
@@ -57,14 +83,18 @@ class PaymobService implements PaymentGatewayInterface
             ],
             'currency' => 'EGP',
             'integration_id' => $this->integrationId,
-        ]);
+        ])->throw();
         $paymentKey = $paymentKeyResponse->json('token');
 
-        // Record the pending payment
-        Payment::create([
-            'user_id' => $user->id,
+        if (! is_string($paymentKey) || $paymentKey === '') {
+            throw new RuntimeException('Failed to obtain Paymob payment key.');
+        }
+
+        Payment::updateOrCreate([
             'appointment_id' => $appointment->id,
             'gateway' => 'paymob',
+        ], [
+            'user_id' => $user->id,
             'gateway_order_id' => (string) $orderId,
             'amount' => $amount,
             'currency' => 'EGP',
@@ -86,21 +116,25 @@ class PaymobService implements PaymentGatewayInterface
 
     public function refund(string $transactionId): bool
     {
-        // In production: call Paymob refund API
+        // @todo Implement Paymob refund API integration
         return true;
     }
 
     public function handleWebhook(array $payload): void
     {
         DB::transaction(function () use ($payload) {
-            $isSuccess = $payload['obj']['success'] ?? false;
-            $transactionId = (string) ($payload['obj']['id'] ?? null);
-            $orderId = (string) ($payload['obj']['order']['id'] ?? null);
+            $isSuccess = (bool) ($payload['obj']['success'] ?? false);
+            $transactionId = $payload['obj']['id'] ?? null;
+            $orderId = $payload['obj']['order']['id'] ?? null;
+
+            if (! is_string($orderId) || $orderId === '') {
+                return;
+            }
 
             if ($isSuccess) {
                 Payment::where('gateway_order_id', $orderId)->update([
                     'status' => 'completed',
-                    'gateway_transaction_id' => $transactionId,
+                    'gateway_transaction_id' => is_string($transactionId) ? $transactionId : null,
                 ]);
             } else {
                 Payment::where('gateway_order_id', $orderId)->update([

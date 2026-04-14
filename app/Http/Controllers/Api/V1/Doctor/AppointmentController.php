@@ -26,7 +26,7 @@ class AppointmentController extends Controller
 
         $appointments = $this->appointmentService->getForDoctor($doctor->id);
 
-        return response()->json(AppointmentResource::collection($appointments));
+        return response()->json(AppointmentResource::collection($appointments)->response()->getData(true));
     }
 
     public function show(string $id, Request $request): JsonResponse

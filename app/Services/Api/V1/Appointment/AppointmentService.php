@@ -22,7 +22,6 @@ class AppointmentService
     public function bookAppointment(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // 1. Strict real-time check
             $isAvailable = $this->slotAvailabilityService->isSlotAvailable(
                 $data['time_slot_id'],
                 $data['scheduled_date']
@@ -32,10 +31,8 @@ class AppointmentService
                 throw new \Exception('This slot is no longer available for the selected date.');
             }
 
-            // 2. Create Appointment
             $appointment = $this->appointmentRepository->create($data);
 
-            // 3. Fire Event
             event(new AppointmentBooked($appointment));
 
             return $appointment;
