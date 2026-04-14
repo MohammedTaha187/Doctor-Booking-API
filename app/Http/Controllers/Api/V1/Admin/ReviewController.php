@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\Review\ReviewResource;
 use App\Models\Review;
 use App\Services\Api\V1\Review\ReviewService;
 use Illuminate\Http\JsonResponse;
@@ -16,12 +17,19 @@ class ReviewController extends Controller
      */
     public function index(): JsonResponse
     {
-        $reviews = Review::with(['patient', 'doctor.user', 'appointment'])
+        $reviews = Review::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'appointment',
+        ])
             ->orderBy('is_approved', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return response()->json($reviews);
+        return response()->json(ReviewResource::collection($reviews)->response()->getData(true));
     }
 
     /**

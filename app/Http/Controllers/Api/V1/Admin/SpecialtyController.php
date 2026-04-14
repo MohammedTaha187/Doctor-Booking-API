@@ -67,7 +67,9 @@ class SpecialtyController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $this->specialtyRepository->delete($id);
+        if (! $this->specialtyRepository->delete($id)) {
+            return response()->json(['message' => 'Specialty not found'], 404);
+        }
 
         return response()->json(null, 204);
     }

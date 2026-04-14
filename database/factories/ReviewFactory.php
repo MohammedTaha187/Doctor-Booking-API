@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Appointment;
+use App\Models\Doctor;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +21,11 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'appointment_id' => Appointment::factory(),
+            'patient_id' => User::factory(),
+            'doctor_id' => Doctor::factory(),
+            'rating' => fake()->numberBetween(1, 5),
+            'comment' => fake()->sentence(),
         ];
     }
 }

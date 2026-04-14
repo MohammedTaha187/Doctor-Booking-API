@@ -25,20 +25,17 @@ class SlotAvailabilityService
             $carbonDate = Carbon::parse($date);
             $dayName = strtolower($carbonDate->format('l'));
 
-            // 1. Get the doctor's weekly pattern for this day
             $slots = TimeSlot::where('doctor_id', $doctorId)
                 ->where('day_of_week', $dayName)
                 ->where('is_available', true)
                 ->get();
 
-            // 2. Get existing appointments for this doctor on this specific date
             $bookedSlotIds = Appointment::where('doctor_id', $doctorId)
                 ->where('scheduled_date', $date)
                 ->whereIn('status', ['pending', 'confirmed'])
                 ->pluck('time_slot_id')
                 ->toArray();
 
-            // 3. Filter out booked slots
             return $slots->filter(fn ($slot) => ! in_array($slot->id, $bookedSlotIds))->values();
         });
     }

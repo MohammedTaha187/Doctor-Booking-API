@@ -47,7 +47,9 @@ class DoctorController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $this->doctorRepository->delete($id);
+        if (! $this->doctorRepository->delete($id)) {
+            return response()->json(['message' => 'Doctor not found'], 404);
+        }
 
         return response()->json(null, 204);
     }

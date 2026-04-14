@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\DoctorFactory;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,7 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 class Doctor extends Model
 {
     /** @use HasFactory<DoctorFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     public function user()
     {

@@ -14,7 +14,7 @@ class SpecialtyRepository implements SpecialtyRepositoryInterface
 
     public function update(string $id, array $data)
     {
-        $record = Specialty::find($id);
+        $record = Specialty::with('translations')->find($id);
         if ($record) {
             $record->update($data);
 
@@ -36,11 +36,11 @@ class SpecialtyRepository implements SpecialtyRepositoryInterface
 
     public function find(string $id)
     {
-        return Specialty::find($id);
+        return Specialty::with('translations')->find($id);
     }
 
     public function all()
     {
-        return Specialty::all();
+        return Specialty::with('translations')->get();
     }
 }

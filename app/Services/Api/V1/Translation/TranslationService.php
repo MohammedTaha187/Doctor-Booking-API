@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\App;
 class TranslationService
 {
     /**
+     * Request-local cache for translation lookups.
+     *
+     * @var array<string, string>
+     */
+    private array $cache = [];
+
+    /**
      * Sync translations for a given model.
      * $translations = ['ar' => ['name' => 'جراحة'], 'en' => ['name' => 'Surgery']]
      */
@@ -37,8 +44,13 @@ class TranslationService
     public function get(Model $model, string $field): ?string
     {
         $locale = App::getLocale();
+        $cacheKey = get_class($model).'|'.$model->id.'|'.$locale.'|'.$field;
 
-        return Translation::where([
+        if (array_key_exists($cacheKey, $this->cache)) {
+            return $this->cache[$cacheKey];
+        }
+
+        return $this->cache[$cacheKey] = Translation::where([
             'translatable_type' => get_class($model),
             'translatable_id' => $model->id,
             'locale' => $locale,

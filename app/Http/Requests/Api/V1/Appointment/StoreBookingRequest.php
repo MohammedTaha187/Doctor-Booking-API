@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1\Appointment;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -15,7 +16,12 @@ class StoreBookingRequest extends FormRequest
     {
         return [
             'doctor_id' => 'required|exists:doctors,id',
-            'time_slot_id' => 'required|exists:time_slots,id',
+            'time_slot_id' => [
+                'required',
+                Rule::exists('time_slots', 'id')->where(function ($query): void {
+                    $query->where('doctor_id', $this->doctor_id);
+                }),
+            ],
             'scheduled_date' => 'required|date|after_or_equal:today',
             'type' => 'required|in:online,in_person',
             'notes' => 'nullable|string|max:500',

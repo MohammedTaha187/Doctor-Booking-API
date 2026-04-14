@@ -14,7 +14,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function update(string $id, array $data)
     {
-        $record = User::find($id);
+        $record = User::with('roles')->find($id);
         if ($record) {
             $record->update($data);
 
@@ -36,12 +36,12 @@ class UserRepository implements UserRepositoryInterface
 
     public function find(string $id)
     {
-        return User::find($id);
+        return User::with('roles')->find($id);
     }
 
     public function all()
     {
-        return User::all();
+        return User::with('roles')->get();
     }
 
     public function findByEmail(string $email)

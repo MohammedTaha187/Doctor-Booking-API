@@ -15,7 +15,7 @@ class DoctorRepository implements DoctorRepositoryInterface
 
     public function update(string $id, array $data)
     {
-        $record = Doctor::find($id);
+        $record = Doctor::with(['user', 'specialty', 'translations'])->find($id);
         if ($record) {
             $record->update($data);
 
@@ -37,22 +37,24 @@ class DoctorRepository implements DoctorRepositoryInterface
 
     public function find(string $id)
     {
-        return Doctor::find($id);
+        return Doctor::with(['user', 'specialty', 'translations'])->find($id);
     }
 
     public function all()
     {
-        return Doctor::all();
+        return Doctor::with(['user', 'specialty', 'translations'])->get();
     }
 
     public function findByUserId(string $userId)
     {
-        return Doctor::where('user_id', $userId)->first();
+        return Doctor::with(['user', 'specialty', 'translations'])
+            ->where('user_id', $userId)
+            ->first();
     }
 
     public function search(array $filters)
     {
-        $query = Doctor::query()->with(['user', 'specialty']);
+        $query = Doctor::query()->with(['user', 'specialty', 'translations']);
 
         // Filter by Specialty
         if (! empty($filters['specialty_id'])) {

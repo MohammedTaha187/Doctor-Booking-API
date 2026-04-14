@@ -21,7 +21,7 @@ class AppointmentController extends Controller
     {
         $appointments = $this->appointmentService->getForPatient($request->user()->id);
 
-        return response()->json(AppointmentResource::collection($appointments));
+        return response()->json(AppointmentResource::collection($appointments)->response()->getData(true));
     }
 
     /**
@@ -46,6 +46,14 @@ class AppointmentController extends Controller
     public function store(StoreBookingRequest $request): JsonResponse
     {
         $slot = TimeSlot::find($request->time_slot_id);
+
+        if (! $slot) {
+            return response()->json(['message' => 'Time slot not found'], 404);
+        }
+
+        if ((string) $slot->doctor_id !== (string) $request->doctor_id) {
+            return response()->json(['message' => 'Time slot does not belong to the selected doctor'], 422);
+        }
 
         try {
             $data = $request->validated();

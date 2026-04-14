@@ -14,7 +14,14 @@ class ReviewRepository implements ReviewRepositoryInterface
 
     public function update(string $id, array $data)
     {
-        $record = Review::find($id);
+        $record = Review::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'appointment',
+        ])->find($id);
         if ($record) {
             $record->update($data);
 
@@ -36,11 +43,25 @@ class ReviewRepository implements ReviewRepositoryInterface
 
     public function find(string $id)
     {
-        return Review::find($id);
+        return Review::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'appointment',
+        ])->find($id);
     }
 
     public function all()
     {
-        return Review::all();
+        return Review::with([
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'doctor.translations',
+            'doctor.specialty.translations',
+            'appointment',
+        ])->get();
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\Api\V1\Payment\InitiatePaymentRequest;
 use App\Models\Appointment;
 use App\Services\Api\V1\Payment\PaymentService;
 use Illuminate\Http\JsonResponse;
+use Throwable;
 
 class PaymentController extends Controller
 {
@@ -19,26 +20,29 @@ class PaymentController extends Controller
     {
         $appointment = Appointment::with('doctor')->findOrFail($request->appointment_id);
 
-        // Ensure the authenticated user owns this appointment
-        if ($appointment->patient_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $this->authorize('pay', $appointment);
+
+        if (! $appointment->doctor || $appointment->doctor->consultation_fee === null) {
+            return response()->json([
+                'message' => 'Consultation fee is not configured for this doctor.',
+            ], 422);
         }
 
-        if ($appointment->payment_status === 'paid') {
-            return response()->json(['message' => 'Appointment is already paid'], 422);
-        }
+        try {
+            $result = $this->paymentService
+                ->gateway($request->gateway)
+                ->initiate(
+                    $request->user(),
+                    $appointment,
+                    (float) $appointment->doctor->consultation_fee
+                );
+        } catch (Throwable $e) {
+            report($e);
 
-        if ($appointment->status === 'cancelled') {
-            return response()->json(['message' => 'Cannot pay for a cancelled appointment'], 422);
+            return response()->json([
+                'message' => 'Payment gateway temporarily unavailable. Please try again later.',
+            ], 502);
         }
-
-        $result = $this->paymentService
-            ->gateway($request->gateway)
-            ->initiate(
-                $request->user(),
-                $appointment,
-                $appointment->doctor->consultation_fee
-            );
 
         return response()->json([
             'message' => 'Payment initiated. Redirect user to the provided URL.',
