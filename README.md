@@ -29,14 +29,17 @@ Doctor Booking API is a Laravel 13 backend built around a versioned API structur
 ## Features
 
 - Authentication flow: register, login, logout, forgot password, reset password, and change password
-- Social authentication entry point
-- Doctor and specialty management
-- Schedule and time slot handling
-- Appointment booking and status tracking
-- Payment processing support
-- Review creation and approval workflow
-- Translation, locale, and settings management
-- Spatie roles and permissions integration
+- Social authentication (Google/Github) integration
+- Doctor and specialty management with Repository Pattern
+- Advanced Schedule and Time Slot handling
+- Appointment booking with conflict protection
+- **Multi-gateway Payment support (Stripe & Paymob)**
+- Review creation with moderation workflow
+- **Polymorphic Translation system for multi-language support**
+- **Background Jobs for appointment reminders (24h before)**
+- **Redis caching for time slot availability**
+- Spatie roles and permissions integration (Admin, Doctor, Patient)
+- **Comprehensive API documentation and 100% Roadmap completion**
 
 ## Architecture
 

@@ -12,4 +12,14 @@ class TimeSlot extends Model
 {
     /** @use HasFactory<TimeSlotFactory> */
     use HasFactory;
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
 }

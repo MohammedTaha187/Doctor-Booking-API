@@ -12,4 +12,9 @@ class Setting extends Model
 {
     /** @use HasFactory<SettingFactory> */
     use HasFactory;
+
+    public function translations()
+    {
+        return $this->morphMany(Translation::class, 'translatable');
+    }
 }

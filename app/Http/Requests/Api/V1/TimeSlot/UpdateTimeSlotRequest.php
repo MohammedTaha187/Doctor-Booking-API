@@ -2,28 +2,23 @@
 
 namespace App\Http\Requests\Api\V1\TimeSlot;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTimeSlotRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'doctor_id' => 'sometimes|exists:doctors,id',
+            'start_time' => 'sometimes|date_format:H:i',
+            'end_time' => 'sometimes|date_format:H:i',
+            'duration_minutes' => 'sometimes|integer',
+            'is_available' => 'boolean',
         ];
     }
 }

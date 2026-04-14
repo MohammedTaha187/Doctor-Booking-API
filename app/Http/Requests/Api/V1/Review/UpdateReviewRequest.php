@@ -2,28 +2,24 @@
 
 namespace App\Http\Requests\Api\V1\Review;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateReviewRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'patient_id' => 'sometimes|exists:users,id',
+            'doctor_id' => 'sometimes|exists:doctors,id',
+            'appointment_id' => 'sometimes|exists:appointments,id',
+            'rating' => 'sometimes|integer|min:1|max:5',
+            'comment' => 'nullable|string',
+            'is_approved' => 'boolean',
         ];
     }
 }

@@ -12,4 +12,19 @@ class Review extends Model
 {
     /** @use HasFactory<ReviewFactory> */
     use HasFactory;
+
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
