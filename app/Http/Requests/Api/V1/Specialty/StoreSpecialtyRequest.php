@@ -21,4 +21,32 @@ class StoreSpecialtyRequest extends FormRequest
             'translations.*' => 'array',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'slug' => [
+                'description' => 'The unique URL-friendly slug for the specialty.',
+                'example' => 'cardiology',
+            ],
+            'icon' => [
+                'description' => 'Icon class or URL representing the specialty.',
+                'example' => 'icon-heart',
+            ],
+            'is_active' => [
+                'description' => 'Whether the specialty is active and visible.',
+                'example' => true,
+            ],
+            'translations' => [
+                'description' => 'An array of translations for the specialty name and description.',
+                'example' => [
+                    [
+                        'locale' => 'en',
+                        'name' => 'Cardiology',
+                        'description' => 'Heart related treatments.',
+                    ],
+                ],
+            ],
+        ];
+    }
 }

@@ -4,8 +4,12 @@ namespace App\Services\Api\V1\Auth;
 
 use App\Events\UserRegistered;
 use App\Models\User;
+use App\Mail\PasswordResetMail;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AuthService
 {
@@ -89,20 +93,51 @@ class AuthService
             throw new \Exception('User not found');
         }
 
-        // @todo Generate token and send email logic
+        // Generate a 6-digit numeric token
+        $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Store/Update token in database
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => Hash::make($token),
+                'created_at' => Carbon::now()
+            ]
+        );
+
+        // Send Email
+        Mail::to($user->email)->send(new PasswordResetMail($token));
     }
 
     public function resetPassword(array $data): void
     {
-        $user = $this->userRepository->findByEmail($data['email'] ?? '');
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $data['email'])
+            ->first();
 
-        if (! $user) {
-            throw new \Exception('User not found');
+        if (!$resetRecord) {
+            throw new \Exception('Invalid or expired token.');
         }
 
+        // Check if token is older than 60 minutes
+        if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
+            throw new \Exception('Token has expired.');
+        }
+
+        // Verify token
+        if (!Hash::check($data['token'], $resetRecord->token)) {
+            throw new \Exception('Invalid token.');
+        }
+
+        // Update password
+        $user = $this->userRepository->findByEmail($data['email']);
         $this->userRepository->update($user->id, [
             'password' => Hash::make($data['password']),
         ]);
+
+        // Delete token
+        DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
     }
 
     public function updateProfile(User $user, array $data): void

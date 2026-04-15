@@ -37,9 +37,9 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function doctors()
+    public function doctor()
     {
-        return $this->hasMany(Doctor::class);
+        return $this->hasOne(Doctor::class);
     }
 
     public function payments()

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1\Webhook;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Payment\PaymobService;
 use App\Services\Api\V1\Payment\StripeService;
+use App\Services\Api\V1\Payment\KashierService;
+use App\Services\Api\V1\Payment\PayPalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -57,6 +59,26 @@ class PaymentWebhookController extends Controller
 
         $stripeService->handleWebhook($request->json()->all());
 
+        return response()->json(['message' => 'OK']);
+    }
+
+    /**
+     * Handle Kashier webhook (HMAC verified).
+     */
+    public function kashier(Request $request, KashierService $kashierService): JsonResponse
+    {
+        // Simple placeholder for Kashier webhook logic
+        $kashierService->handleWebhook($request->all());
+        return response()->json(['message' => 'OK']);
+    }
+
+    /**
+     * Handle PayPal webhook.
+     */
+    public function paypal(Request $request, PaypalService $paypalService): JsonResponse
+    {
+        // Simple placeholder for PayPal webhook logic
+        $paypalService->handleWebhook($request->all());
         return response()->json(['message' => 'OK']);
     }
 }

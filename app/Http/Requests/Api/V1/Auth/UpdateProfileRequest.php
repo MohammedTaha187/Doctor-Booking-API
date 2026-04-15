@@ -22,4 +22,34 @@ class UpdateProfileRequest extends FormRequest
             'language_preference' => 'sometimes|string|max:2',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'name' => [
+                'description' => 'User\'s full name.',
+                'example' => 'John Updated',
+            ],
+            'phone' => [
+                'description' => 'User\'s contact phone number.',
+                'example' => '+1234567890',
+            ],
+            'avatar' => [
+                'description' => 'Profile image file.',
+                'example' => null,
+            ],
+            'gender' => [
+                'description' => 'User\'s gender.',
+                'example' => 'female',
+            ],
+            'date_of_birth' => [
+                'description' => 'User\'s date of birth.',
+                'example' => '1992-08-20',
+            ],
+            'language_preference' => [
+                'description' => 'Preferred language code (e.g., en, ar).',
+                'example' => 'ar',
+            ],
+        ];
+    }
 }

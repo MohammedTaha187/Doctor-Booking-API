@@ -36,4 +36,50 @@ class StoreDoctorRequest extends FormRequest
 
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'user_id' => [
+                'description' => 'The ID of the user to be assigned as a doctor.',
+                'example' => 1,
+            ],
+            'specialty_id' => [
+                'description' => 'The ID of the medical specialty.',
+                'example' => 1,
+            ],
+            'license_number' => [
+                'description' => 'The medical license number of the doctor.',
+                'example' => 'DOC123456',
+            ],
+            'years_experience' => [
+                'description' => 'Years of professional experience.',
+                'example' => 10,
+            ],
+            'consultation_fee' => [
+                'description' => 'Fee per consultation.',
+                'example' => 150.00,
+            ],
+            'consultation_type' => [
+                'description' => 'Type of consultation offered.',
+                'example' => 'both',
+            ],
+            'rating' => [
+                'description' => 'Initial rating of the doctor.',
+                'example' => 4.5,
+            ],
+            'reviews_count' => [
+                'description' => 'Number of reviews.',
+                'example' => 0,
+            ],
+            'is_verified' => [
+                'description' => 'Whether the doctor profile is verified.',
+                'example' => true,
+            ],
+            'is_available' => [
+                'description' => 'Whether the doctor is currently available for bookings.',
+                'example' => true,
+            ],
+        ];
+    }
 }

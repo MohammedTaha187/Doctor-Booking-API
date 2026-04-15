@@ -18,4 +18,18 @@ class LoginRequest extends FormRequest
             'password' => 'required|string|min:6',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'email' => [
+                'description' => 'User email address.',
+                'example' => 'test@example.com',
+            ],
+            'password' => [
+                'description' => 'User account password.',
+                'example' => 'password123',
+            ],
+        ];
+    }
 }

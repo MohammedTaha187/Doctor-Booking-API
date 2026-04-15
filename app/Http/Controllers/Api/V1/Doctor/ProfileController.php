@@ -22,7 +22,10 @@ class ProfileController extends Controller
         $doctor = $this->doctorService->getProfileByUserId($request->user()->id);
 
         if (! $doctor) {
-            return response()->json(['message' => 'Doctor profile not found'], 404);
+            return response()->json([
+                'message' => 'Doctor profile is incomplete. Please update your profile.',
+                'status' => 'incomplete'
+            ], 200);
         }
 
         return response()->json(new DoctorResource($doctor));
@@ -30,17 +33,25 @@ class ProfileController extends Controller
 
     public function update(UpdateDoctorProfileRequest $request): JsonResponse
     {
-        $doctor = $this->doctorService->getProfileByUserId($request->user()->id);
-
-        if (! $doctor) {
-            return response()->json(['message' => 'Doctor profile not found'], 404);
-        }
+        $user = $request->user();
+        $doctor = $this->doctorService->getProfileByUserId($user->id);
 
         $data = $request->validated();
         $translations = $data['translations'] ?? [];
         unset($data['translations']);
 
-        $updatedDoctor = $this->doctorService->updateProfile($doctor, $data);
+        if (! $doctor) {
+            // Initialize profile if it doesn't exist
+            $data['user_id'] = $user->id;
+            // Ensure minimum required fields for a new record or use defaults
+            $data['license_number'] = $data['license_number'] ?? 'PENDING-' . time();
+            $data['years_experience'] = $data['years_experience'] ?? 0;
+            $data['specialty_id'] = $data['specialty_id'] ?? null; 
+
+            $updatedDoctor = $this->doctorService->createProfile($data);
+        } else {
+            $updatedDoctor = $this->doctorService->updateProfile($doctor, $data);
+        }
 
         if (! empty($translations)) {
             $this->translationService->sync($updatedDoctor, $translations);
@@ -48,7 +59,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'message' => 'Doctor profile updated successfully',
-            'data' => new DoctorResource($updatedDoctor),
+            'data' => new DoctorResource($updatedDoctor->fresh()),
         ]);
     }
 }

@@ -38,6 +38,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('webhooks')->group(function () {
         Route::post('/paymob', [PaymentWebhookController::class, 'paymob']);
         Route::post('/stripe', [PaymentWebhookController::class, 'stripe']);
+        Route::post('/kashier', [PaymentWebhookController::class, 'kashier']);
+        Route::post('/paypal', [PaymentWebhookController::class, 'paypal']);
     });
 
     // Protected Routes

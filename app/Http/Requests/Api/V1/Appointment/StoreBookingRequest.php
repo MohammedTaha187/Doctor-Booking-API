@@ -27,4 +27,30 @@ class StoreBookingRequest extends FormRequest
             'notes' => 'nullable|string|max:500',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'doctor_id' => [
+                'description' => 'The ID of the doctor being booked.',
+                'example' => 1,
+            ],
+            'time_slot_id' => [
+                'description' => 'The ID of the time slot for the appointment.',
+                'example' => 10,
+            ],
+            'scheduled_date' => [
+                'description' => 'The date for the appointment.',
+                'example' => '2026-05-25',
+            ],
+            'type' => [
+                'description' => 'The type of consultation required.',
+                'example' => 'online',
+            ],
+            'notes' => [
+                'description' => 'Optional instructions or context for the doctor.',
+                'example' => 'I have a headache.',
+            ],
+        ];
+    }
 }

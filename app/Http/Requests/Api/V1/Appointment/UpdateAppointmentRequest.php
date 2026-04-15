@@ -28,4 +28,58 @@ class UpdateAppointmentRequest extends FormRequest
             'meeting_link' => 'nullable|string',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'patient_id' => [
+                'description' => 'The ID of the patient.',
+                'example' => 1,
+            ],
+            'doctor_id' => [
+                'description' => 'The ID of the doctor.',
+                'example' => 2,
+            ],
+            'time_slot_id' => [
+                'description' => 'The ID of the specific time slot.',
+                'example' => 5,
+            ],
+            'payment_id' => [
+                'description' => 'The ID of the payment record.',
+                'example' => null,
+            ],
+            'scheduled_date' => [
+                'description' => 'The date of the appointment.',
+                'example' => '2026-05-20',
+            ],
+            'scheduled_time' => [
+                'description' => 'The start time of the appointment.',
+                'example' => '10:30',
+            ],
+            'status' => [
+                'description' => 'Current status of the appointment.',
+                'example' => 'confirmed',
+            ],
+            'type' => [
+                'description' => 'Type of the appointment.',
+                'example' => 'online',
+            ],
+            'notes' => [
+                'description' => 'Optional notes about the appointment.',
+                'example' => 'Patient requested special attention.',
+            ],
+            'cancellation_reason' => [
+                'description' => 'Reason for cancellation if applicable.',
+                'example' => null,
+            ],
+            'payment_status' => [
+                'description' => 'Status of the appointment payment.',
+                'example' => 'paid',
+            ],
+            'meeting_link' => [
+                'description' => 'Link for the online meeting.',
+                'example' => 'https://zoom.us/j/123456789',
+            ],
+        ];
+    }
 }

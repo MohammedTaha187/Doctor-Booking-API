@@ -3,6 +3,7 @@
 namespace App\Services\Api\V1\Payment;
 
 use App\Contracts\Payments\PaymentGatewayInterface;
+use App\Services\Api\V1\Payment\KashierService;
 
 class PaymentService
 {
@@ -15,6 +16,8 @@ class PaymentService
         return match ($name) {
             'stripe' => app(StripeService::class),
             'paymob' => app(PaymobService::class),
+            'kashier' => app(KashierService::class),
+            'paypal' => app(PaypalService::class),
             default => throw new \InvalidArgumentException("Unsupported payment gateway: {$name}"),
         };
     }
