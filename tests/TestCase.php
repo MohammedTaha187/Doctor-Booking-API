@@ -52,7 +52,7 @@ abstract class TestCase extends BaseTestCase
         $user->assignRole('doctor');
 
         $specialty = Specialty::first() ?? Specialty::factory()->create(['slug' => 'general']);
-        $user->doctors()->create([
+        $user->doctor()->create([
             'specialty_id' => $specialty->id,
             'license_number' => 'LIC-'.rand(1000, 9999),
             'years_experience' => 10,

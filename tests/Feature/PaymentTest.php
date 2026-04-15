@@ -171,10 +171,10 @@ class PaymentTest extends TestCase
 
         $response = $this->postJson('/api/v1/webhooks/paymob?hmac=INVALID', $payload);
 
-        $response->assertStatus(403)
-            ->assertJson([
-                'message' => 'Invalid signature',
-            ]);
+        $response->assertStatus(403);
+        $response->assertJson([
+            'message' => 'Invalid signature',
+        ]);
 
         $this->assertDatabaseHas('payments', [
             'id' => $payment->id,

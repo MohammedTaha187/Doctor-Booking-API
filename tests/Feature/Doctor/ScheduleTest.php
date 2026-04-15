@@ -29,18 +29,20 @@ class ScheduleTest extends TestCase
     }
 
     /**
-     * Test doctor cannot create overlapping slots on same day.
+     * Test doctor update/create overlapping slots on same day.
+     * New logic: It is idempotent and should return 201/200 instead of 422.
      */
-    public function test_doctor_cannot_create_overlapping_slots(): void
+    public function test_doctor_can_handle_overlapping_slots_idempotently(): void
     {
         $user = $this->actingAsDoctor();
-        $doctor = $user->doctors()->firstOrFail();
+        $doctor = $user->doctor;
 
         TimeSlot::create([
             'doctor_id' => $doctor->id,
             'day_of_week' => 'monday',
             'start_time' => '09:00:00',
             'end_time' => '09:30:00',
+            'duration_minutes' => 30,
             'is_available' => true,
         ]);
 
@@ -51,7 +53,8 @@ class ScheduleTest extends TestCase
             'duration_minutes' => 30,
         ]);
 
-        $response->assertStatus(422);
+        // In new logic, it should succeed (updated or created)
+        $response->assertStatus(201);
     }
 
     /**

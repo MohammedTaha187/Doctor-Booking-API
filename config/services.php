@@ -53,7 +53,7 @@ return [
         'api_key' => env('KASHIER_API_KEY'),
         'mode' => env('KASHIER_MODE', 'sandbox'),
     ],
-    '   ' => [
+    'paypal' => [
         'client_id' => env('PAYPAL_CLIENT_ID'),
         'secret' => env('PAYPAL_SECRET'),
         'mode' => env('PAYPAL_MODE', 'sandbox'),
