@@ -24,7 +24,7 @@ class ProfileController extends Controller
         if (! $doctor) {
             return response()->json([
                 'message' => 'Doctor profile is incomplete. Please update your profile.',
-                'status' => 'incomplete'
+                'status' => 'incomplete',
             ], 200);
         }
 
@@ -44,9 +44,9 @@ class ProfileController extends Controller
             // Initialize profile if it doesn't exist
             $data['user_id'] = $user->id;
             // Ensure minimum required fields for a new record or use defaults
-            $data['license_number'] = $data['license_number'] ?? 'PENDING-' . time();
+            $data['license_number'] = $data['license_number'] ?? 'PENDING-'.time();
             $data['years_experience'] = $data['years_experience'] ?? 0;
-            $data['specialty_id'] = $data['specialty_id'] ?? null; 
+            $data['specialty_id'] = $data['specialty_id'] ?? null;
 
             $updatedDoctor = $this->doctorService->createProfile($data);
         } else {

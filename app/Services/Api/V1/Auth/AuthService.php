@@ -3,13 +3,13 @@
 namespace App\Services\Api\V1\Auth;
 
 use App\Events\UserRegistered;
-use App\Models\User;
 use App\Mail\PasswordResetMail;
+use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AuthService
 {
@@ -101,7 +101,7 @@ class AuthService
             ['email' => $user->email],
             [
                 'token' => Hash::make($token),
-                'created_at' => Carbon::now()
+                'created_at' => Carbon::now(),
             ]
         );
 
@@ -115,7 +115,7 @@ class AuthService
             ->where('email', $data['email'])
             ->first();
 
-        if (!$resetRecord) {
+        if (! $resetRecord) {
             throw new \Exception('Invalid or expired token.');
         }
 
@@ -126,7 +126,7 @@ class AuthService
         }
 
         // Verify token
-        if (!Hash::check($data['token'], $resetRecord->token)) {
+        if (! Hash::check($data['token'], $resetRecord->token)) {
             throw new \Exception('Invalid token.');
         }
 

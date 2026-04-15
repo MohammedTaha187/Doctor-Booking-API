@@ -6,13 +6,15 @@ use App\Contracts\Payments\PaymentGatewayInterface;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\User;
-use Illuminate\Support\Facades\Http;
 
 class KashierService implements PaymentGatewayInterface
 {
     protected string $merchantId;
+
     protected string $apiKey;
+
     protected string $mode;
+
     protected string $baseUrl;
 
     public function __construct()
@@ -20,15 +22,15 @@ class KashierService implements PaymentGatewayInterface
         $this->merchantId = config('services.kashier.merchant_id');
         $this->apiKey = config('services.kashier.api_key');
         $this->mode = config('services.kashier.mode', 'sandbox');
-        $this->baseUrl = $this->mode === 'sandbox' 
-            ? 'https://checkout.sandbox.kashier.com' 
+        $this->baseUrl = $this->mode === 'sandbox'
+            ? 'https://checkout.sandbox.kashier.com'
             : 'https://checkout.kashier.com';
     }
 
     public function initiate(User $user, Appointment $appointment, float $amount): array
     {
-        $orderId = "order_" . time() . "_" . $appointment->id;
-        
+        $orderId = 'order_'.time().'_'.$appointment->id;
+
         // Save pending payment record
         Payment::create([
             'user_id' => $user->id,
@@ -50,6 +52,7 @@ class KashierService implements PaymentGatewayInterface
     {
         // Kashier verification logic (API call or HMAC check)
         Payment::where('provider_id', $transactionId)->update(['status' => 'completed']);
+
         return true;
     }
 

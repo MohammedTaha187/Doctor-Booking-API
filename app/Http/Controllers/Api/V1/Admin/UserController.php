@@ -45,7 +45,6 @@ class UserController extends Controller
         return response()->json(new UserResource($user));
     }
 
-
     public function destroy(string $id): JsonResponse
     {
         if (! $this->userRepository->delete($id)) {

@@ -3,7 +3,6 @@
 namespace App\Services\Api\V1\Payment;
 
 use App\Contracts\Payments\PaymentGatewayInterface;
-use App\Services\Api\V1\Payment\KashierService;
 
 class PaymentService
 {

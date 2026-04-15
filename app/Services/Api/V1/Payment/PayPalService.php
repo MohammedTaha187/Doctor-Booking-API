@@ -11,8 +11,11 @@ use Illuminate\Support\Facades\Http;
 class PayPalService implements PaymentGatewayInterface
 {
     protected string $baseUrl;
+
     protected string $clientId;
+
     protected string $secret;
+
     protected string $mode;
 
     public function __construct()
@@ -45,9 +48,9 @@ class PayPalService implements PaymentGatewayInterface
         ];
 
         $response = Http::withBasicAuth($this->clientId, $this->secret)
-            ->post($this->baseUrl . '/v2/checkout/orders', $orderData);
+            ->post($this->baseUrl.'/v2/checkout/orders', $orderData);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception('Failed to create PayPal order');
         }
 
@@ -72,9 +75,9 @@ class PayPalService implements PaymentGatewayInterface
     public function verify(string $transactionId): bool
     {
         $response = Http::withBasicAuth($this->clientId, $this->secret)
-            ->post($this->baseUrl . "/v2/checkout/orders/{$transactionId}/capture");
+            ->post($this->baseUrl."/v2/checkout/orders/{$transactionId}/capture");
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return false;
         }
 
