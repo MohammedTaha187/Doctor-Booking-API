@@ -22,51 +22,34 @@ The following diagram illustrates the core relationships within the system:
 
 ```mermaid
 erDiagram
-    User ||--o{ Role : has
-    User ||--o| Doctor : "is a"
-    User ||--o{ Appointment : "books (as patient)"
+    User ||--o{ Role : "has roles"
+    User ||--o| Doctor : "has profile"
+    User ||--o{ Appointment : "as patient"
     User ||--o{ Payment : "makes"
     
-    Doctor ||--o{ TimeSlot : "defines"
-    Doctor ||--o{ Appointment : "receives"
-    Doctor }|--|| Specialty : belongs_to
+    Doctor ||--o{ TimeSlot : defines
+    Doctor ||--o{ Appointment : receives
+    Doctor }|--|| Specialty : "belongs to"
     
-    Appointment ||--|| Payment : has_one
-    Appointment ||--o{ Review : has_many
-    Appointment }|--|| TimeSlot : occupies
-    
+    Appointment ||--|| Payment : payment
+    Appointment ||--o{ Review : reviews
+    Appointment }|--|| TimeSlot : uses
+
     User {
-        uuid id
+        string id
         string name
         string email
-        string phone
     }
-    
     Doctor {
-        uuid id
-        uuid user_id
-        uuid specialty_id
-        text bio
+        string id
+        string specialty_id
         decimal session_price
     }
-    
     Appointment {
-        uuid id
-        uuid patient_id
-        uuid doctor_id
-        uuid time_slot_id
-        date scheduled_date
-        enum status
-        decimal total_amount
-    }
-    
-    TimeSlot {
-        uuid id
-        uuid doctor_id
-        string day_of_week
-        time start_time
-        time end_time
-        boolean is_available
+        string id
+        string patient_id
+        string doctor_id
+        string status
     }
 ```
 
