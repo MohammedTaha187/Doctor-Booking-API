@@ -35,4 +35,50 @@ class UpdateDoctorRequest extends FormRequest
             'is_available' => 'required|boolean',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'user_id' => [
+                'description' => 'The ID of the user associated with this doctor.',
+                'example' => 1,
+            ],
+            'specialty_id' => [
+                'description' => 'The ID of the doctor\'s specialty.',
+                'example' => 1,
+            ],
+            'license_number' => [
+                'description' => 'The medical license number of the doctor.',
+                'example' => 'DOC123456',
+            ],
+            'years_experience' => [
+                'description' => 'Years of medical experience.',
+                'example' => 10,
+            ],
+            'consultation_fee' => [
+                'description' => 'Fee for a single consultation.',
+                'example' => 150.00,
+            ],
+            'consultation_type' => [
+                'description' => 'How the doctor conducts consultations.',
+                'example' => 'both',
+            ],
+            'rating' => [
+                'description' => 'Average rating of the doctor.',
+                'example' => 4.8,
+            ],
+            'reviews_count' => [
+                'description' => 'Total number of reviews for the doctor.',
+                'example' => 25,
+            ],
+            'is_verified' => [
+                'description' => 'Status of the doctor\'s verification.',
+                'example' => true,
+            ],
+            'is_available' => [
+                'description' => 'Availability status for new appointments.',
+                'example' => true,
+            ],
+        ];
+    }
 }

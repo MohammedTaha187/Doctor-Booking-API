@@ -1,134 +1,123 @@
-<div align="center">
-  <img src="public/images/doctor-booking-api-banner.svg" alt="Doctor Booking API Banner" width="100%">
-</div>
+# 🩺 Docto-Rbooking API
+[![Laravel](https://img.shields.io/badge/Laravel-11+-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Docker](https://img.shields.io/badge/Docker-Sail-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://laravel.com/docs/sail)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge&logo=json-web-tokens&logoColor=white)](https://jwt.io)
 
-# 🏥 Doctor Booking API
-
-A state-of-the-art, professional Laravel 13 API designed for scalable healthcare platforms. This project features a robust versioned structure, enterprise-grade architecture, and full Docker integration for seamless development and deployment.
+A robust, enterprise-grade backend API for a **Doctor Appointment Management System**. Built with a focus on clean architecture, scalability, and strict security standards.
 
 ---
 
-## 🌟 Overview
+## 🏗️ Technical Architecture
+This project follows professional software engineering standards:
+- **Service-Repository Pattern**: Decoupling business logic from data access for high maintainability.
+- **RBAC (Role-Based Access Control)**: Powered by `spatie/laravel-permission` with dedicated roles for **Patients**, **Doctors**, and **Admins**.
+- **Atomic Operations**: Ensuring data integrity during appointment bookings and payment processing.
+- **Idempotent Scheduling**: Intelligent slot management that handles overlaps gracefully.
 
-The **Doctor Booking API** provides a comprehensive backend for managing medical appointments, doctor schedules, patient records, and multi-gateway payments. Built with **PHP 8.4** and **Laravel 13**, it adheres to high-performance standards and clean code principles.
+---
+
+## 📊 Database Schema (ERD)
+The following diagram illustrates the core relationships within the system:
+
+```mermaid
+erDiagram
+    User ||--o{ Role : has
+    User ||--o| Doctor : "is a"
+    User ||--o{ Appointment : "books (as patient)"
+    User ||--o{ Payment : "makes"
+    
+    Doctor ||--o{ TimeSlot : "defines"
+    Doctor ||--o{ Appointment : "receives"
+    Doctor }|--|| Specialty : belongs_to
+    
+    Appointment ||--|| Payment : has_one
+    Appointment ||--o{ Review : has_many
+    Appointment }|--|| TimeSlot : occupies
+    
+    User {
+        uuid id
+        string name
+        string email
+        string phone
+    }
+    
+    Doctor {
+        uuid id
+        uuid user_id
+        uuid specialty_id
+        text bio
+        decimal session_price
+    }
+    
+    Appointment {
+        uuid id
+        uuid patient_id
+        uuid doctor_id
+        uuid time_slot_id
+        date scheduled_date
+        enum status
+        decimal total_amount
+    }
+    
+    TimeSlot {
+        uuid id
+        uuid doctor_id
+        string day_of_week
+        time start_time
+        time end_time
+        boolean is_available
+    }
+```
+
+---
 
 ## 🚀 Key Features
-
-- **🔐 Advanced Authentication**: Secure JWT-based auth including registration, login, logout, and password recovery.
-- **🌐 Social Integration**: Single Sign-On (SSO) support via Google and Facebook.
-- **📅 Smart Scheduling**: Complex time-slot management with conflict detection and real-time availability.
-- **💳 Payment Gateways**: Fully integrated support for **Stripe**, **Paypal**, and **Kashier**.
-- **🌍 Multi-lingual Support**: Polymorphic translation system for dynamic content across multiple locales.
-- **🤖 Automated Workflows**: Background jobs for appointment reminders (24h prior) and status updates.
-- **🏢 Role-Based Access Control (RBAC)**: Fine-grained permissions for Admins, Doctors, and Patients (via Spatie).
-- **⚡ Performance Caching**: Redis-backed caching for doctor availability and search results.
-- **✅ Code Quality**: Automated testing suite and strict style enforcement via Laravel Pint.
+- **Smart Scheduling**: Bulk-create/update available time slots for doctors with collision detection.
+- **Appointment Lifecycle**: Seamless flow from Booking -> Confirmation -> Payment -> Review.
+- **Payment Integration**: Webhook support for payment gateways and automated transaction tracking.
+- **Search & Filter**: Find doctors by specialty, availability, or ratings.
+- **Advanced Auth**: JWT-based authentication with automatic role assignments.
 
 ---
 
-## 🏗️ Technical Stack
-
-### Backend
-- **Core**: PHP 8.4 / Laravel 13
-- **Database**: MySQL 8.4
-- **Cache & Queue**: Redis (Alpine)
-- **Auth**: JWT (JSON Web Token) & Laravel Sanctum
-- **Permissions**: Spatie Laravel-Permission
-- **Mailing**: SMTP (Gmail integration)
-
-### Frontend & Tools
-- **Asset Bundling**: Vite 8.0
-- **CSS Framework**: Tailwind CSS 4.0
-- **Testing**: PHPUnit & Laravel Test Runner
-- **Code Style**: Laravel Pint
-
-### DevOps & Infrastructure
-- **Containerization**: Docker & Laravel Sail
-- **CI/CD**: GitHub Actions (Auto-merge features)
-- **Monitoring**: Laravel Pail (Real-time logs)
-
----
-
-## 📐 Architecture
-
-The project follows a **Modified Repository & Service Pattern** to decouple business logic from persistence.
-
-- **Controllers**: Thin controllers handling only request entry and response delivery.
-- **Services**: Centralized business logic (e.g., `AppointmentService`, `PaymentService`).
-- **Repositories**: Standardized data access layer with Interface contracts for easy swapping.
-- **Models**: Eloquent models with defined relationships and polymorphic capabilities.
-- **Requests**: Dedicated form requests for robust input validation.
-- **Resources**: API Resources for consistent JSON response structuring.
-
----
-
-## 🐳 Docker Setup (Recommended)
-
-This project is fully containerized using **Laravel Sail**. This is the standard way to run the application locally.
+## 🛠️ Requirements & Setup
 
 ### Prerequisites
-- Docker Desktop installed.
-- PHP & Composer installed (only for initial setup).
+- Docker Installed (Desktop/Engine)
+- Laravel Sail
 
-### Installation Steps
-
-1. **Clone & Install Dependencies**:
-   ```bash
-   composer install
-   ```
-
-2. **Launch Infrastructure**:
-   ```bash
-   ./vendor/bin/sail up -d
-   ```
-
-3. **Initialize Environment**:
-   ```bash
-   ./vendor/bin/sail artisan key:generate
-   ./vendor/bin/sail artisan migrate:fresh --seed
-   ```
-
-4. **Build Frontend Assets**:
-   ```bash
-   ./vendor/bin/sail npm install
-   ./vendor/bin/sail npm run build
-   ```
-
-5. **Start Development Server**:
-   ```bash
-   ./vendor/bin/sail npm run dev
-   ```
-
-The API will be available at `http://localhost`.
-
----
-
-## 🧪 Testing & Quality
-
-To run the automated suite:
+### Quick Installation
 ```bash
-./vendor/bin/sail artisan test
-```
+# 1. Clone the repository
+git clone https://github.com/your-username/Doctor-Booking-API.git
+cd Doctor-Booking-API
 
-To check code style:
-```bash
-./vendor/bin/sail pint --test
+# 2. Start the environment
+./vendor/bin/sail up -d
+
+# 3. Install dependencies
+./vendor/bin/sail composer install
+
+# 4. Setup environment
+cp .env.example .env
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan jwt:secret
+
+# 5. Run migrations and seed the system
+./vendor/bin/sail artisan migrate --seed
 ```
 
 ---
 
-## 📋 Database Schema Summary
+## 🧪 Testing with Postman
+A comprehensive **Postman Collection** is included in the root directory:
+- `Docto-Rbooking-Api.postman_collection.json`
+- Includes pre-configured environment variables and **one-click testing** for Admin, Doctor, and Patient flows.
 
-| Table | Purpose |
-| --- | --- |
-| `users` | Unified table for all user types with Spatie roles. |
-| `doctors` | Detailed professional records and specialties. |
-| `time_slots` | Granular availability windows for each doctor. |
-| `appointments` | Transactional records for bookings and status. |
-| `payments` | Multi-provider transaction tracking. |
-| `translations` | Polymorphic data for localized strings. |
+## 👨‍💻 Author
+**Muhammad Taha**  
+*Backend Developer*
 
 ---
-
-## 📄 License
-MIT License. Created by **MohammedTaha187**.
+*Built with ❤️ using Clean Code principles.*

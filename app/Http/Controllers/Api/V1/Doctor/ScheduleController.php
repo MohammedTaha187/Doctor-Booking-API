@@ -55,17 +55,8 @@ class ScheduleController extends Controller
         $endTime = Carbon::createFromFormat('H:i', $request->end_time);
         $duration = $request->duration_minutes;
 
-        $hasOverlap = TimeSlot::where('doctor_id', $doctor->id)
-            ->where('day_of_week', $request->day_of_week)
-            ->where('start_time', '<', $endTime->format('H:i:s'))
-            ->where('end_time', '>', $startTime->format('H:i:s'))
-            ->exists();
-
-        if ($hasOverlap) {
-            return response()->json([
-                'message' => 'Selected time range overlaps with an existing slot.',
-            ], 422);
-        }
+        // We remove the strict hasOverlap check and handle it per slot creation
+        // to allow partial updates or idempotent creation.
 
         $createdSlots = [];
         $current = $startTime->copy();
@@ -75,14 +66,18 @@ class ScheduleController extends Controller
             $current->addMinutes($duration);
             $slotEnd = $current->format('H:i:s');
 
-            $createdSlots[] = $this->timeSlotRepository->create([
-                'doctor_id' => $doctor->id,
-                'day_of_week' => $request->day_of_week,
-                'start_time' => $slotStart,
-                'end_time' => $slotEnd,
-                'duration_minutes' => $duration,
-                'is_available' => true,
-            ]);
+            $createdSlots[] = TimeSlot::updateOrCreate(
+                [
+                    'doctor_id' => $doctor->id,
+                    'day_of_week' => $request->day_of_week,
+                    'start_time' => $slotStart,
+                    'end_time' => $slotEnd,
+                ],
+                [
+                    'duration_minutes' => $duration,
+                    'is_available' => true,
+                ]
+            );
         }
 
         return response()->json([
@@ -109,7 +104,7 @@ class ScheduleController extends Controller
 
         $this->timeSlotRepository->delete($id);
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Slot deleted successfully.']);
     }
 
     /**

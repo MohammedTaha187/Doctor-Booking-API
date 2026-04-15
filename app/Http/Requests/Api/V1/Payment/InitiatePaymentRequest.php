@@ -18,4 +18,18 @@ class InitiatePaymentRequest extends FormRequest
             'gateway' => 'required|in:stripe,paymob',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'appointment_id' => [
+                'description' => 'The ID of the appointment to pay for.',
+                'example' => 1,
+            ],
+            'gateway' => [
+                'description' => 'The payment gateway to use.',
+                'example' => 'stripe',
+            ],
+        ];
+    }
 }

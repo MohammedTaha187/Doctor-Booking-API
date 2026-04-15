@@ -21,9 +21,9 @@ class PaymobService implements PaymentGatewayInterface
 
     public function __construct()
     {
-        $this->apiKey = config('services.paymob.api_key', '');
-        $this->integrationId = config('services.paymob.integration_id', '');
-        $this->iframeId = config('services.paymob.iframe_id', '');
+        $this->apiKey = (string) config('services.paymob.api_key', '');
+        $this->integrationId = (string) config('services.paymob.integration_id', '');
+        $this->iframeId = (string) config('services.paymob.iframe_id', '');
     }
 
     private function http(): PendingRequest

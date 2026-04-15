@@ -21,9 +21,9 @@ class SlotAvailabilityService
     {
         $cacheKey = "slots:{$doctorId}:{$date}";
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($doctorId, $date) {
+        $data = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($doctorId, $date) {
             $carbonDate = Carbon::parse($date);
-            $dayName = strtolower($carbonDate->format('l'));
+            $dayName = $carbonDate->format('l');
 
             $slots = TimeSlot::where('doctor_id', $doctorId)
                 ->where('day_of_week', $dayName)
@@ -36,8 +36,10 @@ class SlotAvailabilityService
                 ->pluck('time_slot_id')
                 ->toArray();
 
-            return $slots->filter(fn ($slot) => ! in_array($slot->id, $bookedSlotIds))->values();
+            return $slots->filter(fn ($slot) => ! in_array($slot->id, $bookedSlotIds))->values()->toArray();
         });
+
+        return TimeSlot::hydrate($data);
     }
 
     /**

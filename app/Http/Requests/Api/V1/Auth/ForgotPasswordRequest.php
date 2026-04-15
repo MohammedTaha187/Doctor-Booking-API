@@ -17,4 +17,14 @@ class ForgotPasswordRequest extends FormRequest
             'email' => 'required|email',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'email' => [
+                'description' => 'User email address to send the password reset link to.',
+                'example' => 'test@example.com',
+            ],
+        ];
+    }
 }

@@ -24,4 +24,42 @@ class StoreUserRequest extends FormRequest
             'language_preference' => 'nullable|string|max:2',
         ];
     }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'name' => [
+                'description' => 'The full name of the user.',
+                'example' => 'John Doe',
+            ],
+            'email' => [
+                'description' => 'The email address of the user (must be unique).',
+                'example' => 'john.doe@example.com',
+            ],
+            'password' => [
+                'description' => 'The user\'s account password (minimum 6 characters).',
+                'example' => 'password123',
+            ],
+            'avatar' => [
+                'description' => 'URL or path to the user\'s avatar image.',
+                'example' => 'https://example.com/avatars/john.jpg',
+            ],
+            'phone' => [
+                'description' => 'Working phone number of the user.',
+                'example' => '+1234567890',
+            ],
+            'gender' => [
+                'description' => 'The gender of the user.',
+                'example' => 'male',
+            ],
+            'date_of_birth' => [
+                'description' => 'User\'s date of birth.',
+                'example' => '1990-01-01',
+            ],
+            'language_preference' => [
+                'description' => 'Preferred language code (e.g., en, ar).',
+                'example' => 'en',
+            ],
+        ];
+    }
 }

@@ -63,4 +63,9 @@ class AppointmentService
     {
         return $this->appointmentRepository->getByPatientId($patientId);
     }
+
+    public function find(string $id)
+    {
+        return $this->appointmentRepository->find($id);
+    }
 }

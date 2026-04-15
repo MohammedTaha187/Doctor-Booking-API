@@ -29,7 +29,7 @@ class AppointmentController extends Controller
      */
     public function show(string $id, Request $request): JsonResponse
     {
-        $appointment = $this->appointmentService->appointmentRepository->find($id);
+        $appointment = $this->appointmentService->find($id);
 
         if (! $appointment) {
             return response()->json(['message' => 'Appointment not found'], 404);
@@ -78,7 +78,7 @@ class AppointmentController extends Controller
      */
     public function cancel(string $id, Request $request): JsonResponse
     {
-        $appointment = $this->appointmentService->appointmentRepository->find($id);
+        $appointment = $this->appointmentService->find($id);
 
         if (! $appointment) {
             return response()->json(['message' => 'Appointment not found'], 404);

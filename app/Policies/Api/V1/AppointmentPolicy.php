@@ -54,7 +54,15 @@ class AppointmentPolicy
      */
     public function complete(User $user, Appointment $appointment): bool
     {
-        return $user->doctor?->id === $appointment->doctor_id
+        return ($user->doctor?->id === $appointment->doctor_id || $user->hasRole('admin'))
             && $appointment->status === 'confirmed';
+    }
+
+    /**
+     * General status update permission for doctor or admin.
+     */
+    public function updateStatus(User $user, Appointment $appointment): bool
+    {
+        return $user->doctor?->id === $appointment->doctor_id || $user->hasRole('admin');
     }
 }

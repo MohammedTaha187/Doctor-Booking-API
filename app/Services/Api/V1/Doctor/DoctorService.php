@@ -18,4 +18,9 @@ class DoctorService
     {
         return $this->doctorRepository->update($doctor->id, $data);
     }
+
+    public function createProfile(array $data)
+    {
+        return $this->doctorRepository->create($data);
+    }
 }
